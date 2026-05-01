@@ -1,0 +1,4 @@
+venv/
+.credit/
+model_artifacts.pkl
+__pycache__/
