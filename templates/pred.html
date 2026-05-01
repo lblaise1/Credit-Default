@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Credit Default Prediction</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #1e1e2e;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav {
+      background: #2a2a3e;
+      padding: 20px 40px;
+      display: flex;
+      gap: 30px;
+      align-items: center;
+      border-bottom: 1px solid #3a3a4e;
+    }
+
+    .nav a {
+      color: #aaa;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .nav a:hover {
+      color: #fff;
+    }
+
+    .nav .brand {
+      color: #fff;
+      font-weight: bold;
+      margin-right: 30px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    h1 {
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #888;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: #2a2a3e;
+      border-radius: 8px;
+      padding: 30px;
+      margin-bottom: 20px;
+      border: 1px solid #3a3a4e;
+    }
+
+    label {
+      display: block;
+      margin-top: 16px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      background: #1e1e2e;
+      border: 1px solid #3a3a4e;
+      border-radius: 4px;
+      color: #e0e0e0;
+      font-size: 14px;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #6c6cf0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    button {
+      margin-top: 24px;
+      padding: 12px 32px;
+      background: #6c6cf0;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #5a5ae0;
+    }
+
+    /* Result styling */
+    .verdict-banner {
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .verdict-low {
+      background: #1e3a2e;
+      border: 1px solid #2e7a4e;
+    }
+
+    .verdict-medium {
+      background: #3a341e;
+      border: 1px solid #7a6a2e;
+    }
+
+    .verdict-high {
+      background: #3a1e1e;
+      border: 1px solid #7a2e2e;
+    }
+
+    .verdict-banner h2 {
+      margin: 0 0 12px 0;
+      font-size: 24px;
+      color: #fff;
+    }
+
+    .prob-big {
+      font-size: 48px;
+      font-weight: bold;
+      color: #fff;
+      margin: 8px 0;
+    }
+
+    .prob-small {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background: #1e1e2e;
+      border-radius: 6px;
+      margin: 16px 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4ade80 0%, #fbbf24 50%, #ef4444 100%);
+      transition: width 0.5s;
+    }
+
+    .threshold-marker {
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .factors-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .factor {
+      display: grid;
+      grid-template-columns: 200px 100px 1fr;
+      gap: 16px;
+      align-items: center;
+      padding: 14px;
+      background: #1e1e2e;
+      border-radius: 6px;
+    }
+
+    .factor-name {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .badge-Low {
+      background: #1e3a2e;
+      color: #4ade80;
+    }
+
+    .badge-Moderate {
+      background: #3a341e;
+      color: #fbbf24;
+    }
+
+    .badge-High {
+      background: #3a1e1e;
+      color: #ef4444;
+    }
+
+    .factor-detail {
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    .input-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 24px;
+      margin-top: 16px;
+    }
+
+    .input-summary div {
+      padding: 8px 0;
+      border-bottom: 1px solid #3a3a4e;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .input-summary span:first-child {
+      color: #888;
+      font-size: 13px;
+    }
+
+    .input-summary span:last-child {
+      color: #e0e0e0;
+    }
+
+    .error {
+      padding: 16px;
+      background: #3a1e1e;
+      border: 1px solid #7a2e2e;
+      color: #f8b4b4;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      color: #fff;
+      margin-top: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="nav">
+    <span class="brand">TDI Capstone</span>
+    <a href="/">Home</a>
+    <a href="/Data">Data</a>
+    <a href="/Model">Model</a>
+    <a href="/Prediction">Prediction</a>
+  </nav>
+
+  <div class="container">
+    <h1>Loan Default Prediction</h1>
+    <p class="subtitle">Enter borrower details to estimate probability of default.</p>
+
+    {% if not model_loaded %}
+    <div class="error">
+      <strong>Model not trained yet.</strong>
+      Run <code>python train_model.py</code> in your terminal first, then restart the app.
+    </div>
+    {% endif %}
+
+    {% if result and result.error %}
+    <div class="error">{{ result.error }}</div>
+    {% endif %}
+
+    {% if result and not result.error %}
+    <!-- Verdict banner -->
+    <div class="verdict-banner {{ result.verdict_class }}">
+      <h2>{{ result.verdict }}</h2>
+      <div class="prob-big">{{ result.default_probability }}%</div>
+      <div class="prob-small">probability of default</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ result.default_probability }}%;"></div>
+      </div>
+      <div class="threshold-marker">
+        Decision threshold: {{ result.threshold }}% &nbsp;·&nbsp;
+        Repayment probability: {{ result.repay_probability }}%
+      </div>
+    </div>
+
+    <!-- Risk factor breakdown -->
+    <div class="card">
+      <h3>Risk Factor Breakdown</h3>
+      <div class="factors-grid">
+        {% for name, level, detail in result.risk_factors %}
+        <div class="factor">
+          <div class="factor-name">{{ name }}</div>
+          <div><span class="badge badge-{{ level }}">{{ level }}</span></div>
+          <div class="factor-detail">{{ detail }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Input summary -->
+    <div class="card">
+      <h3>Submitted Information</h3>
+      <div class="input-summary">
+        {% for k, v in result.inputs.items() %}
+        <div><span>{{ k }}</span><span>{{ v }}</span></div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Form -->
+    <div class="card">
+      <h3>{% if result %}Run another prediction{% else %}Borrower Information{% endif %}</h3>
+      <form action="/Prediction" method="POST">
+        <div class="form-grid">
+          <div>
+            <label for="loan_amnt">Loan Amount ($)</label>
+            <input type="number" step="any" id="loan_amnt" name="loan_amnt" required placeholder="e.g. 15000">
+          </div>
+          <div>
+            <label for="annual_inc">Annual Income ($)</label>
+            <input type="number" step="any" id="annual_inc" name="annual_inc" required placeholder="e.g. 65000">
+          </div>
+          <div>
+            <label for="purpose">Loan Purpose</label>
+            <select id="purpose" name="purpose" required>
+              {% for p in purposes %}
+              <option value="{{ p }}">{{ p }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="revol_util">Revolving Utilization (%)</label>
+            <input type="number" step="any" id="revol_util" name="revol_util" required placeholder="e.g. 45">
+          </div>
+          <div>
+            <label for="inq_last_6mths">Credit Inquiries (last 6 months)</label>
+            <input type="number" step="1" id="inq_last_6mths" name="inq_last_6mths" required placeholder="e.g. 1">
+          </div>
+          <div>
+            <label for="pub_rec_bankruptcies">Public Bankruptcies</label>
+            <input type="number" step="1" id="pub_rec_bankruptcies" name="pub_rec_bankruptcies" required
+              placeholder="e.g. 0">
+          </div>
+        </div>
+        <button type="submit">Predict Default Risk</button>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>
